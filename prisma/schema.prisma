@@ -1,0 +1,45 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Complaint {
+  id             String    @id @default(cuid())
+  trackingCode   String    @unique // 접수 식별 번호 (예: CMP-2603-9182)
+  title          String
+  content        String
+  category       String    // 시설/환경, 서비스/친절, 제도/규정, 건의사항, 기타
+  status         String    @default("PENDING") // PENDING(접수대기), IN_REVIEW(검토중), ANSWERED(답변완료), RESOLVED(해결완료)
+  isSecret       Boolean   @default(false)     // 비밀글 여부
+  passwordHash   String                        // 비밀번호 해시 (비밀글 열람 및 작성자 댓글/수정용)
+  authorNickname String    @default("익명")    // 표시 닉네임
+  viewCount      Int       @default(0)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  comments       Comment[]
+}
+
+model Comment {
+  id          String    @id @default(cuid())
+  complaintId String
+  complaint   Complaint @relation(fields: [complaintId], references: [id], onDelete: Cascade)
+  senderType  String    // "ADMIN" | "AUTHOR"
+  senderName  String    // e.g. "담당자 (운영팀)", "작성자 (익명)"
+  content     String
+  createdAt   DateTime  @default(now())
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  username     String   @unique
+  passwordHash String
+  name         String   @default("운영관리자")
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+}
+

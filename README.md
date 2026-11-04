@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 익명 신문고 (Anonymous Complaint & Voice Board)
 
-## Getting Started
+익명으로 이용자가 불만 및 건의사항을 등록하고, 관리자와 안전하게 1:1 대화형으로 소통하며 답변을 받을 수 있는 웹 애플리케이션입니다.
 
-First, run the development server:
+---
 
+## 📌 주요 특징
+
+### 1. 100% 안심 익명성 보장
+- 회원가입이나 개인정보(이름, 이메일, 전화번호) 수집 없이 이용 가능.
+- IP 및 사용자 기기 식별 정보를 수집/저장하지 않습니다.
+- 게시글 비밀번호는 `bcrypt`로 안전하게 단방향 암호화 처리됩니다.
+
+### 2. 혼합형 공개 정책 (공개글 / 비밀글)
+- **공개글**: 다른 이용자도 게시판에서 열람하고 공감할 수 있습니다.
+- **비밀글**: 본문이 보호되며, 작성 시 설정한 비밀번호를 입력하거나 관리자만 열람할 수 있습니다.
+
+### 3. 일반 게시판 형태의 목록 및 조회
+- 카테고리 필터링 (`시설/환경`, `서비스/친절`, `제도/규정`, `건의사항`, `기타`).
+- 진행 상태 필터링 (`접수대기`, `검토중`, `답변완료`, `해결완료`).
+- 실시간 키워드 및 고유 접수번호(예: `CMP-2611-XXXX`) 빠른 조회 지원.
+
+### 4. 대화형 스레드 (1:1 소통 시스템)
+- 단순 1회성 Q&A가 아닌, 관리자 공식 답변 후 작성자가 추가 의견/문의를 등록할 수 있는 연속 대화형 피드백 제공.
+- 작성자는 설정한 비밀번호 인증을 통해 안전하게 추가 의견을 남길 수 있습니다.
+
+### 5. 운영 관리자 전용 대시보드
+- 통계 지표(접수대기, 검토중, 답변완료, 해결완료 카운트).
+- 모든 접수 내역(비밀글 포함) 일괄 검토 및 즉시 상태 변경.
+- 공식 답변 작성 및 게시글 관리.
+
+---
+
+## 🛠 기술 스택
+
+- **Framework**: Next.js 16 (App Router, Server Actions, TypeScript)
+- **UI / Styling**: Tailwind CSS v4, Lucide Icons
+- **Database & ORM**: SQLite + Prisma ORM (로컬 무설치 구동)
+- **Security**: bcryptjs (단방향 해싱), HMAC-SHA256 세션 토큰
+
+---
+
+## 🚀 실행 방법
+
+### 1. 의존성 설치 및 데이터베이스 준비
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 패키지 설치
+npm install
+
+# 데이터베이스 생성 및 스키마 동기화
+npx prisma db push
+
+# 초기 샘플 데이터 및 기본 관리자 계정 생성
+node prisma/seed.mjs
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. 개발 서버 실행
+```bash
+npm run dev
+```
+브라우저에서 [http://localhost:3000](http://localhost:3000) 접속.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. 프로덕션 빌드 및 실행
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🔑 기본 관리자 계정 정보
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **관리자 로그인 페이지**: `/admin/login` (네비게이션 우측 상단 '관리자' 링크)
+- **아이디**: `admin`
+- **비밀번호**: `admin1234!`
