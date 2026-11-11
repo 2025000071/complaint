@@ -17,6 +17,32 @@ async function main() {
     },
   });
 
+  const defaultBoards = [
+    { name: '공지사항', slug: 'notice', type: 'GENERAL' },
+    { name: '1:1 문의', slug: 'inquiry', type: 'INQUIRY', allowSecret: true },
+    { name: '상품 Q&A', slug: 'product-qna', type: 'QNA', allowSecret: true, allowProductLink: true },
+    { name: '상품 리뷰', slug: 'review', type: 'REVIEW', allowProductLink: true },
+  ];
+
+  await Promise.all(
+    defaultBoards.map((board) =>
+      prisma.board.upsert({
+        where: { slug: board.slug },
+        update: {},
+        create: board,
+      }),
+    ),
+  );
+
+  const inquiryBoard = await prisma.board.findUniqueOrThrow({
+    where: { slug: 'inquiry' },
+    select: { id: true },
+  });
+  await prisma.complaint.updateMany({
+    where: { boardId: null },
+    data: { boardId: inquiryBoard.id },
+  });
+
   // 2. Check existing complaints
   const count = await prisma.complaint.count();
   if (count === 0) {
@@ -109,4 +135,3 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
-

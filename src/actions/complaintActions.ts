@@ -29,6 +29,17 @@ export async function createComplaintAction(formData: {
 
     const passwordHash = await bcrypt.hash(password.trim(), 10);
     const trackingCode = generateTrackingCode();
+    const inquiryBoard = await prisma.board.findUnique({
+      where: { slug: 'inquiry' },
+      select: { id: true },
+    });
+
+    if (!inquiryBoard) {
+      return {
+        success: false,
+        error: '문의 게시판이 준비되지 않았습니다. 관리자에게 문의해 주세요.',
+      };
+    }
 
     const complaint = await prisma.complaint.create({
       data: {
@@ -39,11 +50,13 @@ export async function createComplaintAction(formData: {
         passwordHash,
         authorNickname: authorNickname?.trim() || '익명',
         trackingCode,
+        boardId: inquiryBoard.id,
       },
     });
 
     revalidatePath('/');
     revalidatePath('/complaints');
+    revalidatePath('/boards/inquiry');
 
     return {
       success: true,
@@ -215,4 +228,3 @@ export async function deleteComplaintAction(complaintId: string, passwordOrAdmin
     return { success: false, error: '게시글 삭제 중 오류가 발생했습니다.' };
   }
 }
-
